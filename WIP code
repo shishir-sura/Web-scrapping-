@@ -123,12 +123,12 @@ imps=range(1,len(Author_names)-1)
 ds=range(1,len(Author_names)-1)
 
 #print ds
-user_name=range(0,len(usn_dat)-1)
+user_name=range(len(usn_dat)-1)
 friends_num=range(len(user_name))
 location=range(len(friends_num))
 reviews_given=range(len(friends_num))
-rating=rat_dat(len(friends_num))
-
+rating=range(len(friends_num))
+review_date=range(len(friends_num))
 
 for i in range(len(user_name)):
     user_name[i]=usn_dat[i+1]
@@ -143,8 +143,8 @@ for i in range(len(Review_Base)):
     print friends_num[i].b.text
     print location[i].b.text
     print reviews_given[i].b.text
-    print rating[i].b.text
-    print review_date[i].b.text
+    print rating[i]["content"]
+    print review_date[i].text
     print i
     tet=Review_Base[i].text
     stemmer=nltk.PorterStemmer()
