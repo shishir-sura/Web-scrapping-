@@ -1,0 +1,160 @@
+from bs4 import BeautifulSoup
+import requests
+import collections
+import nltk
+#Natural language toolkit
+import re
+
+
+url='http://www.yelp.com/biz/la-burrita-berkeley'
+soup=BeautifulSoup(requests.get(url).text,'html5lib')
+len(soup)
+#7
+base=soup('div','review review--with-sidebar')
+len(base)
+#41
+x=[base1.find(itemprop="author") for base1 in base]
+#[base1.find(itemprop="author") for base1 in base]
+x[1]
+#<meta content="Noe D." itemprop="author"/>
+type(x[2])
+#<class 'bs4.element.Tag'>
+#use dicts to etract data by creating attributes
+yelp_atrs=range(len(x))
+yelp_atrs
+#[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40]
+for i in range(1,len(x)):
+    yelp_atrs[i]=x[i].attrs
+    
+#Check attributes of the dict
+yelp_atrs[2].has_key("content")
+#True
+#Creating a dummy variable for author names:
+Author_names=range(len(yelp_atrs))
+#[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40]
+#extracting author names:
+for i in range(1,len(yelp_atrs)):
+    Author_names[i]=yelp_atrs[i]["content"]
+    
+#Author_names
+#[0, 1, u'Andrew D.', u'Elisa T.', u'Kiki H.', u'Raynell C.', u'T R.', u'David G.', u'Oliver H.', u'Denis A.', u'David L.', u'Lea M.', u'Ankur K.', u'Dennis K.', u'Epic S.', u'Victor A.', u'Neema S.', u'David N.', u'Jana C.', u'Kevin K.', u'Matthew H.', u'Ally M.', u'Julie T.', u'Barry G.', u'Parker S.', u'Tony M.', u'Tsz K. L.', u'Michelle U.', u'Alwin L.', u'Joseph A.', u'Amy H.', u'Marisa J.', u'Logan P.', u'Madhur B.', u'Denise L.', u'Shubhi T.', u'Augusto T.', u'Amanda M.', u'Kell B.', u'Catherine L.', u'Fabian C.']
+#print Author_names
+
+#So far pulled the author names from page 1; page 1 is the first 40 reviews
+
+#Now going to pull up the review content:
+base2=soup('div','review-wrapper')
+len(base2)
+#41
+
+Review_Base=soup.find_all('p')
+#gives the description
+Review_Base=soup.find_all('p',{'itemprop':'description'})
+#extracting only text
+for i in range(len(Review_Base)):
+    Review_Base[i]=Review_Base[i].text
+#Checking the size
+len(Review_Base)
+#40
+#print Review_Base[1]
+#Type is bs4.tag
+type(Review_Base[1])
+#<class 'bs4.element.Tag'>
+#Converting to dicts:
+rev_atrs=range(len(Review_Base))
+rev_atrs
+#[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+ds=range(len(Author_names))
+for i in range(len(Review_Base)):
+    ds[i]=[Author_names[i],Review_Base[i]]
+
+
+#print ds
+#Final Dataset with all the user reviews
+
+#extract location, number of freinds and reviews from Author data
+#use div class="media-story"
+#username data
+usn_dat=[dd.find('a','user-display-name') for dd in base]
+usn_dat[2].text
+#friends data #number of friends
+frnd_dat=[dd.find('span','i-wrap ig-wrap-common_sprite i-18x18_friends_c-common_sprite-wrap') for dd in base]
+frnd_dat[2].b.text
+#u'10'
+#Location data
+loc_dat=[dd.find('li','user-location') for dd in base]
+loc_dat[1].b.text
+#Reviews data Number of reviews give
+rev_dat=[dd.find('span','i-wrap ig-wrap-common_sprite i-18x18_review_c-common_sprite-wrap') for dd in base]
+rev_dat[2].b.text
+#Review Date
+rev_date_data=[dd.find('span','rating-qualifier') for dd in base]
+rev_date_data[2].text
+#u'\n            \n        4/26/2015\n    '
+#Rating give
+rat_dat=[dd.find(itemprop='ratingValue') for dd in base]
+rat_dat[1]["content"]
+#u'5.0'
+
+#text=str(Review_Base[2])
+#Converts description into string
+#text.lower()
+
+#subtitutions
+#x=re.sub('<p itemprop="description" lang="en">','',text)
+#y=re.sub('<br/><br/>','',x)
+#z=re.sub('<br/>','',y)
+#z1=re.sub('</p>','',z)
+#put this in a loop to clear out every stupid pattern
+
+#stemmer.stem(z1)
+
+#nltk.pos_tag(nltk.word_tokenize('he who laughs wants to kill himself'))
+#[('he', 'PRP'), ('who', 'WP'), ('laughs', 'NNS'), ('wants', 'VBZ'), ('to', 'TO'), ('kill', 'VB'), ('himself', 'PRP')]
+#nltk.pos_tag(nltk.word_tokenize(z2))
+#nouns=[word for word,pos in tagged if pos in ('NN','NNP','NNS','NNPS')]
+#tagged=nltk.pos_tag(nltk.word_tokenize(z1))
+#verbs=[word for word,pos in tagged if pos in ('VBD','VBN','JJ','RB')]#jj is adjective RB is adverb
+#verbs
+
+
+
+imps=range(1,len(Author_names)-1)
+ds=range(1,len(Author_names)-1)
+
+#print ds
+user_name=range(0,len(usn_dat)-1)
+friends_num=range(len(user_name))
+location=range(len(friends_num))
+reviews_given=range(len(friends_num))
+rating=rat_dat(len(friends_num))
+
+
+for i in range(len(user_name)):
+    user_name[i]=usn_dat[i+1]
+    friends_num[i]=frnd_dat[i+1]
+    location[i]=loc_dat[i+1]
+    reviews_given[i]=rev_dat[i+1]
+    rating[i]=rat_dat[i+1]
+    review_date[i]=rev_date_data[i+1]
+
+for i in range(len(Review_Base)):
+    print user_name[i].text
+    print friends_num[i].b.text
+    print location[i].b.text
+    print reviews_given[i].b.text
+    print rating[i].b.text
+    print review_date[i].b.text
+    print i
+    tet=Review_Base[i].text
+    stemmer=nltk.PorterStemmer()
+    stemmer.stem(tet)
+    tagged=nltk.pos_tag(nltk.word_tokenize(tet))
+    imps[i]=[word for word,pos in tagged if pos in ('VBD','VBN','JJ','RB')]
+    ds[i]=[user_name[i].text,friends_num[i].b.text,location[i].b.text,reviews_given[i].text,rating[i].text,review_date[i].text,[imps]]
+    print ds[i]
+
+
+
+
+
